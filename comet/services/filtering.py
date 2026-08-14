@@ -145,10 +145,14 @@ class TitleMatcher:
                 self.max_year = year + 1
 
     def matches_title(self, torrent_title: str, parsed_title: str) -> bool:
-        if self.external_event_titles and external_event_title_matches(
-            torrent_title, self.external_event_titles
-        ):
-            return True
+        if self.external_event_titles:
+            # External sports matching already understands precise aliases,
+            # fixture tokens, and split-day conflicts. Falling through to the
+            # generic alias matcher would let a broad base alias override a
+            # rejected Saturday/Sunday distinction.
+            return external_event_title_matches(
+                torrent_title, self.external_event_titles
+            )
         if exact_alias_match(scrub(parsed_title), self.aliases_normalized):
             return True
         return title_match(
