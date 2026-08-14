@@ -76,6 +76,8 @@ class TorrentManager:
         target_air_date: str | None = None,
         reject_unknown_episode_files: bool = False,
         media_scope: MediaScope | None = None,
+        search_titles: tuple[str, ...] | None = None,
+        external_event: bool = False,
     ):
         self.media_type = media_type
         self.media_id = media_full_id
@@ -101,6 +103,8 @@ class TorrentManager:
         )
         self.target_air_date = target_air_date
         self.reject_unknown_episode_files = reject_unknown_episode_files
+        self.search_titles = search_titles
+        self.external_event = external_event
 
         self.seen_hashes = set()
         self.torrents = {}
@@ -144,12 +148,16 @@ class TorrentManager:
             season=self.search_season,
             episode=self.search_episode,
             context=context,
-            search_titles=select_indexer_titles(
-                self.title,
-                self.aliases,
-                settings.INDEXER_LANGUAGES,
-                include_canonical=settings.INDEXER_INCLUDE_CANONICAL_TITLE,
-                include_original=settings.INDEXER_INCLUDE_ORIGINAL_TITLE,
+            search_titles=(
+                self.search_titles
+                if self.search_titles is not None
+                else select_indexer_titles(
+                    self.title,
+                    self.aliases,
+                    settings.INDEXER_LANGUAGES,
+                    include_canonical=settings.INDEXER_INCLUDE_CANONICAL_TITLE,
+                    include_original=settings.INDEXER_INCLUDE_ORIGINAL_TITLE,
+                )
             ),
         )
         titles = " · ".join(f"“{title}”" for title in request.query_titles)
@@ -383,6 +391,8 @@ class TorrentManager:
                 self.media_type,
                 self.aliases,
                 self.remove_adult_content,
+                self.search_titles if self.external_event else (),
+                self.target_air_date if self.external_event else None,
             )
             for i in range(0, len(new_torrents), chunk_size)
         ]

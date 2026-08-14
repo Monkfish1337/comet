@@ -83,6 +83,52 @@ class AliasFilteringTests(unittest.TestCase):
 
         self.assertEqual(actual[0]["parsed"].languages, ["it"])
 
+    def test_external_event_matches_fixture_tokens_and_date(self):
+        torrent = {
+            "title": (
+                "NBA 2025-2026 RS 12.04.2026 Chicago Bulls @ "
+                "Dallas Mavericks 1080p WEB-DL"
+            ),
+            "infoHash": "2" * 40,
+        }
+
+        actual = filter_worker(
+            [torrent],
+            "Dallas Mavericks vs Chicago Bulls",
+            2026,
+            None,
+            "movie",
+            {},
+            False,
+            ("Dallas Mavericks vs Chicago Bulls",),
+            "2026-04-12",
+        )
+
+        self.assertEqual(len(actual), 1)
+
+    def test_external_event_rejects_a_different_fixture_date(self):
+        torrent = {
+            "title": (
+                "NBA 2025-2026 RS 18.01.2026 Dallas Mavericks @ "
+                "Chicago Bulls 1080p WEB-DL"
+            ),
+            "infoHash": "3" * 40,
+        }
+
+        actual = filter_worker(
+            [torrent],
+            "Dallas Mavericks vs Chicago Bulls",
+            2026,
+            None,
+            "movie",
+            {},
+            False,
+            ("Dallas Mavericks vs Chicago Bulls",),
+            "2026-04-12",
+        )
+
+        self.assertEqual(actual, [])
+
 
 if __name__ == "__main__":
     unittest.main()
