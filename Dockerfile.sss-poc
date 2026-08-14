@@ -1,8 +1,0 @@
-FROM ghcr.io/g0ldyy/comet:latest
-
-LABEL org.opencontainers.image.source="https://github.com/Monkfish1337/comet"
-LABEL org.opencontainers.image.description="Comet SeriousSportSync public-host integration proof of concept"
-
-# Retain the official Comet runtime and dependency set; overlay only the
-# integration code being means-tested on this branch.
-COPY comet /app/comet
