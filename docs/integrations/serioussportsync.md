@@ -18,11 +18,19 @@ must be accepted. Entries include the port when the URL includes one.
 
 ## User setup
 
-1. Copy the personal manifest URL from the SeriousSportSync account page.
+1. Open **Services → Comet** on the SeriousSportSync account page and copy the
+   personal SSS manifest shown there.
 2. Open Comet's configure page and expand **SeriousSportSync**.
 3. Paste the manifest URL, configure the desired Comet scrapers and debrid
-   service, then install Comet.
-4. Keep SeriousSportSync installed as the catalog add-on.
+   service, then generate the configured Comet manifest URL.
+4. Paste that Comet manifest back into the SeriousSportSync account, test the
+   connection, and save.
+5. Install SeriousSportSync in Stremio or Nuvio. SSS supplies the catalogs and
+   forwards event stream requests to Comet, which supplies discovery and
+   playback. A separate Comet installation is not required.
+
+Comet itself intentionally declares no catalogs. Installing only the Comet
+manifest will therefore not display the SeriousSportSync sports catalogs.
 
 The manifest URL contains a private account token. Comet uses its matching
 token-scoped `search-context` endpoint to obtain the event title aliases, year,
