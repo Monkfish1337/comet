@@ -24,4 +24,5 @@ jobs:
           tests/test_indexer_scrapers.py
           tests/test_filtering.py
           tests/test_orchestration.py
+          tests/test_playback_cache.py
           -k "serioussportsync or external_event or rejected_external_cache"
