@@ -314,6 +314,12 @@ class TorrentManager:
                 "updatedAt": row["updated_at"],
             }
 
+        # Raw cache rows that fail external-event relevance checks must not
+        # suppress a fresh scrape. This also repairs existing installations
+        # whose cache was populated before stricter sports filtering.
+        if self.external_event:
+            self.primary_cached = bool(self.torrents)
+
     def _append_cache_file_infos(self, file_infos: list[dict], torrent: dict):
         parsed = torrent["parsed"]
         cache_seasons = parsed.seasons or [
