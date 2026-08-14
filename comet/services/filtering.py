@@ -133,6 +133,11 @@ class TitleMatcher:
             if year_end:
                 self.min_year = year
                 self.max_year = year_end
+            elif self.external_event_titles:
+                # Sports events are date-specific. A neighbouring-year allowance
+                # that is useful for ordinary movie metadata admits old fixtures.
+                self.min_year = year
+                self.max_year = year
             elif media_type == "series":
                 self.min_year = year - 1
             else:

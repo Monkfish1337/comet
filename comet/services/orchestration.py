@@ -9,7 +9,7 @@ from comet.core.models import CometSettingsModel, database, settings
 from comet.core.scrape import ScrapeContext
 from comet.scrapers.manager import scraper_manager
 from comet.scrapers.models import ScrapeRequest
-from comet.services.filtering import filter_worker
+from comet.services.filtering import TitleMatcher, filter_worker
 from comet.services.ranking import rank_worker
 from comet.services.torrent_manager import torrent_update_queue
 from comet.utils.languages import select_indexer_titles
@@ -245,6 +245,19 @@ class TorrentManager:
 
             rows = list(best_rows.values())
 
+        external_matcher = (
+            TitleMatcher(
+                self.title,
+                self.year,
+                self.year_end,
+                self.media_type,
+                self.aliases,
+                self.search_titles or (),
+            )
+            if self.external_event
+            else None
+        )
+
         for row in rows:
             parsed_data = load_cached_parsed(row["parsed_json"])
             if parsed_data is None:
@@ -253,6 +266,21 @@ class TorrentManager:
                 )
                 continue
             ensure_multi_language(parsed_data)
+
+            if external_matcher is not None:
+                cached_title = row["title"] or ""
+                if (
+                    not parsed_data.parsed_title
+                    or not external_matcher.matches(
+                        cached_title, parsed_data.parsed_title, parsed_data.year
+                    )
+                    or (
+                        self.target_air_date
+                        and parsed_data.date
+                        and parsed_data.date != self.target_air_date
+                    )
+                ):
+                    continue
 
             target_season = self.search_season
             if (

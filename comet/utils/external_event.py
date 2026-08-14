@@ -1,6 +1,9 @@
 import re
 
 _IGNORED_EVENT_WORDS = frozenset({"and", "event", "full", "the", "versus", "vs"})
+_EVENT_DAY_WORDS = frozenset(
+    {"monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"}
+)
 
 
 def _normalise_event_title(title: str) -> str:
@@ -11,6 +14,18 @@ def external_event_title_matches(raw_title: str, aliases: tuple[str, ...]) -> bo
     normalised_raw = re.sub(r"[^a-z0-9]+", " ", _normalise_event_title(raw_title))
     normalised_raw = " ".join(normalised_raw.split())
     raw_tokens = set(normalised_raw.split())
+
+    requested_days = {
+        token
+        for alias in aliases
+        for token in re.sub(
+            r"[^a-z0-9]+", " ", _normalise_event_title(alias)
+        ).split()
+        if token in _EVENT_DAY_WORDS
+    }
+    raw_days = raw_tokens & _EVENT_DAY_WORDS
+    if requested_days and raw_days and requested_days.isdisjoint(raw_days):
+        return False
 
     for alias in aliases:
         normalised_alias = re.sub(r"[^a-z0-9]+", " ", _normalise_event_title(alias))

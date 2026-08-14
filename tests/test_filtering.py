@@ -148,6 +148,62 @@ class AliasFilteringTests(unittest.TestCase):
 
         self.assertEqual(actual, [])
 
+    def test_external_event_rejects_a_neighbouring_year(self):
+        torrent = {
+            "title": "WWE SummerSlam 2024 1080p WEB h264-HEEL",
+            "infoHash": "4" * 40,
+        }
+        parsed = SimpleNamespace(
+            parsed_title="WWE SummerSlam",
+            languages=[],
+            dubbed=False,
+            adult=False,
+            date=None,
+            year=2024,
+        )
+        with patch("comet.services.filtering._parse_with_cache", return_value=parsed):
+            actual = filter_worker(
+                [torrent],
+                "SummerSlam Sunday",
+                2025,
+                None,
+                "movie",
+                {},
+                False,
+                ("WWE SummerSlam Sunday", "WWE SummerSlam"),
+                "2025-08-03",
+            )
+
+        self.assertEqual(actual, [])
+
+    def test_external_event_rejects_the_other_split_day(self):
+        torrent = {
+            "title": "WWE SummerSlam 2025 Saturday 1080p WEB h264-HEEL",
+            "infoHash": "5" * 40,
+        }
+        parsed = SimpleNamespace(
+            parsed_title="WWE SummerSlam",
+            languages=[],
+            dubbed=False,
+            adult=False,
+            date=None,
+            year=2025,
+        )
+        with patch("comet.services.filtering._parse_with_cache", return_value=parsed):
+            actual = filter_worker(
+                [torrent],
+                "SummerSlam Sunday",
+                2025,
+                None,
+                "movie",
+                {},
+                False,
+                ("WWE SummerSlam Sunday", "WWE SummerSlam"),
+                "2025-08-03",
+            )
+
+        self.assertEqual(actual, [])
+
 
 if __name__ == "__main__":
     unittest.main()
