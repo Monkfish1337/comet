@@ -8,6 +8,10 @@ _EVENT_ID = re.compile(r"[a-z0-9][a-z0-9_-]*:[A-Za-z0-9][A-Za-z0-9._-]*")
 _FIXTURE_SEPARATOR = re.compile(
     r"\s+(?:v(?:s)?\.?|versus|at)\s+|\s*@\s*", re.IGNORECASE
 )
+_SPLIT_EVENT_DAY_SUFFIX = re.compile(
+    r"\s+(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)$",
+    re.IGNORECASE,
+)
 
 
 class SeriousSportSyncResolverError(RuntimeError):
@@ -50,6 +54,14 @@ def build_event_search_titles(title: str, aliases: list[str]) -> tuple[str, ...]
         append(candidate)
         if isinstance(candidate, str):
             append(_FIXTURE_SEPARATOR.sub(" ", candidate))
+            # Some indexers use strict full-text matching and return no results for
+            # split-day labels such as "WWE SummerSlam Sunday", even though the
+            # release is indexed under the shared event name "WWE SummerSlam".
+            # Keep the precise forms first, then add the safe base-event form.
+            base_event = _SPLIT_EVENT_DAY_SUFFIX.sub("", candidate)
+            if base_event != candidate:
+                append(base_event)
+                append(_FIXTURE_SEPARATOR.sub(" ", base_event))
     return tuple(titles[:24])
 
 

@@ -56,6 +56,21 @@ class SeriousSportSyncTests(unittest.IsolatedAsyncioTestCase):
             ),
         )
 
+    def test_builds_base_query_for_split_day_events(self):
+        self.assertEqual(
+            build_event_search_titles(
+                "SummerSlam Sunday",
+                ["WWE SummerSlam Sunday", "WWE SummerSlam Sunday 2025"],
+            ),
+            (
+                "SummerSlam Sunday",
+                "SummerSlam",
+                "WWE SummerSlam Sunday",
+                "WWE SummerSlam",
+                "WWE SummerSlam Sunday 2025",
+            ),
+        )
+
     async def test_resolves_token_scoped_search_context(self):
         session = _Session(
             {
