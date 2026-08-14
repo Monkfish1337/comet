@@ -23,4 +23,5 @@ jobs:
           tests/test_config_compatibility.py
           tests/test_indexer_scrapers.py
           tests/test_filtering.py
-          -k "serioussportsync or external_event"
+          tests/test_orchestration.py
+          -k "serioussportsync or external_event or rejected_external_cache"
