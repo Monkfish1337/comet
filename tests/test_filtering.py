@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 from unittest.mock import patch
 
 from RTN import parse
@@ -92,17 +93,26 @@ class AliasFilteringTests(unittest.TestCase):
             "infoHash": "2" * 40,
         }
 
-        actual = filter_worker(
-            [torrent],
-            "Dallas Mavericks vs Chicago Bulls",
-            2026,
-            None,
-            "movie",
-            {},
-            False,
-            ("Dallas Mavericks vs Chicago Bulls",),
-            "2026-04-12",
+        parsed = SimpleNamespace(
+            parsed_title="NBA",
+            languages=[],
+            dubbed=False,
+            adult=False,
+            date="2026-04-12",
+            year=2026,
         )
+        with patch("comet.services.filtering._parse_with_cache", return_value=parsed):
+            actual = filter_worker(
+                [torrent],
+                "Dallas Mavericks vs Chicago Bulls",
+                2026,
+                None,
+                "movie",
+                {},
+                False,
+                ("Dallas Mavericks vs Chicago Bulls",),
+                "2026-04-12",
+            )
 
         self.assertEqual(len(actual), 1)
 
@@ -115,17 +125,26 @@ class AliasFilteringTests(unittest.TestCase):
             "infoHash": "3" * 40,
         }
 
-        actual = filter_worker(
-            [torrent],
-            "Dallas Mavericks vs Chicago Bulls",
-            2026,
-            None,
-            "movie",
-            {},
-            False,
-            ("Dallas Mavericks vs Chicago Bulls",),
-            "2026-04-12",
+        parsed = SimpleNamespace(
+            parsed_title="NBA",
+            languages=[],
+            dubbed=False,
+            adult=False,
+            date="2026-01-18",
+            year=2026,
         )
+        with patch("comet.services.filtering._parse_with_cache", return_value=parsed):
+            actual = filter_worker(
+                [torrent],
+                "Dallas Mavericks vs Chicago Bulls",
+                2026,
+                None,
+                "movie",
+                {},
+                False,
+                ("Dallas Mavericks vs Chicago Bulls",),
+                "2026-04-12",
+            )
 
         self.assertEqual(actual, [])
 
